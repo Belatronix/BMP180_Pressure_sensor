@@ -2,6 +2,19 @@ import smbus2
 import time
 
 address = 0x77
+
+# +-----+---------------------------+----------------------+
+# | oss | Internal number of samples| conversion time [ms] |
+# +-----+---------------------------+----------------------+
+# |  0  |            1              |       4.5            |
+# +-----+---------------------------+----------------------+
+# |  1  |            2              |       7.5            |
+# +-----+---------------------------+----------------------+
+# |  2  |            4              |      13.5            |
+# +-----+---------------------------+----------------------+
+# |  3  |            8              |      25.5            |
+# +-----+---------------------------+----------------------+
+
 oss = 3
 height = 53
 
@@ -51,12 +64,12 @@ MD = word_read_signed(0xBE)
 
 # read uncompensated temperature value
 bmp180.write_byte_data(address, 0xF4, 0x2E)
-time.sleep(0.2)
+time.sleep(0.05)
 UT = word_read_unsigned(0xF6)
 
 # read uncompensated pressure value
 bmp180.write_byte_data(address, 0xF4, (0x34 + (oss << 6)))
-time.sleep(0.2)
+time.sleep(0.05)
 MSB = bmp180.read_byte_data(address, 0xF6)
 LSB = bmp180.read_byte_data(address, 0xF7)
 XLSB = bmp180.read_byte_data(address, 0xF8)
@@ -88,14 +101,10 @@ X2 = (-7357 * p) / (2 ** 16)
 p += (X1 + X2 + 3791) / (2 ** 4)
 
 # pressure calculation at standard atmosphere(atm) => 1013,25 hPa at 15°C resp. 288,15 Kelvin
-
 temperature_NN = T / 10 + 0.0065 * height
 pressure_NN = p / (1 - (0.0065 * height / kelvin(temperature_NN))) ** 5.255
 
-# print("Temperature: %s °C, Pressure: %s hPa, PressureNN: %s hPa" % (
-#  round(T / 10, 3), round(p / 100, 4), round(pressure_NN / 100, 2)))
-
 
 if __name__ == "__main__":
-    print("Temperature: %s °C, Pressure: %s hPa, PressureNN: %s hPa" % (
+    print("Temperature: %s °C, Pressure local: %s hPa, Pressure atm: %s hPa" % (
         round(T / 10, 3), round(p / 100, 4), round(pressure_NN / 100, 2)))
