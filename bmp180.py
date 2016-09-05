@@ -106,5 +106,5 @@ pressure_NN = p / (1 - (0.0065 * height / kelvin(temperature_NN))) ** 5.255
 
 
 if __name__ == "__main__":
-    print("Temperature: %s °C, Pressure local: %s hPa, Pressure atm: %s hPa" % (
+    print("Temperature: %s °C, Pressure local: %s hPa, Pressure Atm: %s hPa" % (
         round(T / 10, 3), round(p / 100, 4), round(pressure_NN / 100, 2)))
